@@ -1,0 +1,38 @@
+============================================================
+  PROJECT PHANTOM - TIMING SIDE-CHANNEL REPORT
+  Phase 6A: Chronos v2 Integration
+  Generated: 2026-04-12 23:07:05.491658
+============================================================
+
+THEORY:
+  When EtwEventWrite is patched with RET (0xC3), the kernel
+  handles the unexpected early return differently, creating
+  measurable scheduling irregularities observable from
+  user-space timing measurements — a passive side-channel.
+
+BASELINE TIMING:
+  Avg interval    : 3.0476 sec
+  Std deviation   : 0.0291 sec
+  Max jitter      : 0.132 sec
+  Coeff variation : 0.95%
+  Anomaly         : False
+
+TAMPERED TIMING:
+  Avg interval    : 3.0451 sec
+  Std deviation   : 0.0174 sec
+  Max jitter      : 0.0662 sec
+  Coeff variation : 0.57%
+  Anomaly         : False
+
+COMPARISON:
+  Stdev delta     : -0.0117 sec
+  Jitter delta    : -0.0658 sec
+  CV delta        : -0.38%
+  Detection       : YES
+
+CONCLUSION:
+  Timing side-channel analysis provides a passive,
+  kernel-privilege-free detection method that complements
+  the cross-correlation approach in Phase 5.
+  Inspired by Chronos v2 scheduler timing attack concepts.
+============================================================

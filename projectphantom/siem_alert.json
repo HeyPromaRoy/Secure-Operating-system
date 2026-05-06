@@ -1,0 +1,16 @@
+{
+    "alert_id": "PHANTOM-DETECT-001",
+    "timestamp": "2026-04-08 23:27:53.381021",
+    "severity": "CRITICAL",
+    "mitre_technique": "T1562.006",
+    "mitre_tactic": "Defense Evasion",
+    "description": "ETW telemetry gap detected via Kernel Process Callback cross-correlation.",
+    "threat_actor_associations": [
+        "Remcos RAT",
+        "Lazarus FudModule"
+    ],
+    "ghost_processes": [
+        "DataExchangeHost.exe",
+        "AdobeARM.exe"
+    ]
+}

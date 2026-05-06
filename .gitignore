@@ -1,0 +1,15 @@
+﻿@
+.vs/
+x64/
+Debug/
+Release/
+*.db
+*.ipch
+*.log
+*.tlog
+*.pdb
+*.iobj
+*.ipdb
+*.exe
+*.sys
+@

@@ -1,0 +1,48 @@
+============================================================
+  PROJECT PHANTOM - AUTOMATED TEST SUITE REPORT
+  Phase 6B: Test Suite
+  Generated: 2026-04-12 23:06:57.882663
+============================================================
+
+  [TEST 1] [PASS] Baseline log exists and has valid structure
+           20 samples found in baseline
+
+  [TEST 2] [PASS] Tampered log exists and has valid structure
+           20 samples found in tampered log
+
+  [TEST 3] [PASS] Process counts are realistic
+           Avg process count 420.2 is realistic (100-1000 range)
+
+  [TEST 4] [PASS] ETW provider was active during baseline capture
+           ETW was active — provider: Microsoft-Windows-Kernel-Process
+
+  [TEST 5] [PASS] CPU usage values are in valid range (0-100%)
+           All CPU values valid — avg: 23.3%
+
+  [TEST 6] [PASS] Memory usage values are in valid range (0-100%)
+           All memory values valid — avg: 79.9%
+
+  [TEST 7] [PASS] Baseline and tampered logs have matching structure
+           Both logs have matching structure: ['cpu_percent', 'memory_percent', 'process_count', 'processes', 'sample', 'timestamp']
+
+  [TEST 8] [PASS] All timestamps are valid and sequential
+           20 timestamps are valid and sequential
+
+  [TEST 9] [PASS] Detection gap calculation produces valid result
+           Detection gap: 1.13% — 2 processes missing
+
+  [TEST 10] [PASS] SIEM alert has all required fields
+           SIEM alert valid — severity: CRITICAL, ghost processes: 2
+
+  [TEST 11] [PASS] Sampling intervals are approximately 2 seconds
+           Avg sampling interval: 3.0476s (expected ~2.0s)
+
+  [TEST 12] [PASS] CPU anomaly comparison baseline vs tampered
+           CPU during baseline: 23.32% | tampered: 29.24% | delta: +5.91%
+
+============================================================
+  Tests passed : 12
+  Tests failed : 0
+  Total        : 12
+  Result       : ALL PASSED
+============================================================

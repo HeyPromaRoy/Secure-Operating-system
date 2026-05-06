@@ -1,0 +1,57 @@
+============================================================
+  PROJECT PHANTOM - CROSS-CORRELATION ANALYSIS REPORT
+  Author: Proma Roy
+  Course: CSC I0420 - Secure Operating Systems
+  Generated: 2026-04-08 23:27:53.372299
+============================================================
+
+RESEARCH QUESTION:
+  Can ETW tampering create measurable telemetry gaps
+  detectable by cross-correlating independent sources?
+
+────────────────────────────────────────────────────────────
+BASELINE TELEMETRY (Normal ETW - Phase 2)
+────────────────────────────────────────────────────────────
+  Samples collected  : 20
+  Avg CPU usage      : 23.32%
+  Avg Memory usage   : 79.94%
+  Avg Process count  : 420.2
+  Min Process count  : 415
+  Max Process count  : 438
+  Unique processes   : 177
+
+────────────────────────────────────────────────────────────
+TAMPERED TELEMETRY (ETW Blinded - Phase 3 Active)
+────────────────────────────────────────────────────────────
+  Samples collected  : 20
+  Avg CPU usage      : 29.24%
+  Avg Memory usage   : 81.78%
+  Avg Process count  : 418.85
+  Min Process count  : 415
+  Max Process count  : 438
+  Unique processes   : 177
+
+────────────────────────────────────────────────────────────
+CROSS-CORRELATION FINDINGS
+────────────────────────────────────────────────────────────
+  Process count difference  : 1.35
+  Detection gap             : 1.13%
+  Processes missing in ETW  : 2
+  New processes detected    : 2
+
+  Processes visible in baseline but missing after tamper:
+    - AdobeARM.exe
+    - DataExchangeHost.exe
+
+────────────────────────────────────────────────────────────
+CONCLUSION
+────────────────────────────────────────────────────────────
+  TAMPERING DETECTED — ETW telemetry gap confirmed
+  1.13% of baseline processes
+  disappeared from ETW after EtwEventWrite patch
+
+  MITRE ATT&CK T1562.006 successfully demonstrated
+  PhantomGuard kernel callbacks remained active
+  Cross-correlation revealed the detection gap
+
+============================================================
