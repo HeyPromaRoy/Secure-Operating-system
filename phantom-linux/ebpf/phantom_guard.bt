@@ -1,0 +1,38 @@
+#!/usr/bin/env bpftrace
+/*
+ * PhantomGuard - Linux eBPF Edition
+ * Independent kernel telemetry via execve tracepoint
+ * Linux equivalent of PhantomGuard.sys
+ * MITRE ATT&CK T1562.001
+ */
+
+BEGIN
+{
+    printf("=====================================================\n");
+    printf("  PhantomGuard - Linux eBPF Process Monitor\n");
+    printf("  Kernel telemetry independent of auditd\n");
+    printf("  Ctrl+C to stop\n");
+    printf("=====================================================\n\n");
+    printf("%-22s %-7s %-7s %-20s %s\n",
+           "TIMESTAMP", "PID", "PPID", "COMM", "FILENAME");
+    printf("%-22s %-7s %-7s %-20s %s\n",
+           "----------------------", "-------", "-------",
+           "--------------------", "--------");
+}
+
+tracepoint:syscalls:sys_enter_execve
+{
+    printf("%-22s %-7d %-7d %-20s %s\n",
+           strftime("%m/%d/%Y %H:%M:%S", nsecs),
+           pid,
+           curtask->real_parent->pid,
+           comm,
+           str(args->filename));
+}
+
+END
+{
+    printf("\n[*] PhantomGuard stopped.\n");
+}
+
+

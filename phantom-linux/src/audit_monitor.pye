@@ -1,0 +1,131 @@
+#!/usr/bin/env python3
+"""
+Project Phantom - Linux Extension
+Audit Baseline Monitor v4
+Fixed: no duplicate events
+Ubuntu 24.04 / auditd 3.1.2
+"""
+
+import subprocess
+import re
+import json
+import time
+import os
+from datetime import datetime
+
+LOG_FILE = os.path.expanduser("~/phantom-linux/logs/audit_events.log")
+os.makedirs(os.path.expanduser("~/phantom-linux/logs"), exist_ok=True)
+
+
+def get_events(seen_serials):
+    """Pull phantom_exec events, skip already-seen serials."""
+    result = subprocess.run(
+        ['ausearch', '-k', 'phantom_exec', '-i'],
+        capture_output=True, text=True
+    )
+
+    events = []
+    blocks = result.stdout.split('----\n')
+
+    for block in blocks:
+        if 'SYSCALL' not in block:
+            continue
+
+        # Get serial number — unique ID per audit record
+        serial_match = re.search(r'msg=audit\([^:]+:(\d+)\)', block)
+        if not serial_match:
+            continue
+        serial = serial_match.group(1)
+
+        # Skip if we already printed this one
+        if serial in seen_serials:
+            continue
+        seen_serials.add(serial)
+
+        event = {'serial': serial}
+
+        # Timestamp
+        ts_match = re.search(
+            r'msg=audit\((\d{2}/\d{2}/\d{4} \d{2}:\d{2}:\d{2}\.\d+)', block)
+        if ts_match:
+            event['timestamp'] = ts_match.group(1)
+        else:
+            event['timestamp'] = datetime.now().strftime('%m/%d/%Y %H:%M:%S.000')
+
+        # Find the SYSCALL line specifically
+        syscall_line = ''
+        for line in block.splitlines():
+            if 'type=SYSCALL' in line:
+                syscall_line = line
+                break
+
+        # Extract fields from SYSCALL line
+        pid_match  = re.search(r'\bpid=(\d+)',  syscall_line)
+        ppid_match = re.search(r'\bppid=(\d+)', syscall_line)
+        comm_match = re.search(r'comm=(\S+)',   syscall_line)
+        exe_match  = re.search(r'exe=(\S+)',    syscall_line)
+
+        event['pid']  = pid_match.group(1)  if pid_match  else '?'
+        event['ppid'] = ppid_match.group(1) if ppid_match else '?'
+        event['comm'] = comm_match.group(1).strip('"')[:18] if comm_match else '?'
+        event['exe']  = exe_match.group(1).strip('"')       if exe_match  else '?'
+
+        if event['exe'] != '?':
+            events.append(event)
+
+    return events
+
+
+def main():
+    print("[*] Phantom Linux - Audit Monitor v4")
+    print("[*] Monitoring execve syscalls via auditd (phantom_exec key)")
+    print("[*] Ctrl+C to stop\n")
+
+    # This set lives inside main() — one shared set for the whole session
+    seen_serials = set()
+
+    # Pre-load all existing serials so we only show NEW events going forward
+    print("[*] Loading existing events to establish baseline...")
+    get_events(seen_serials)
+    count = len(seen_serials)
+    print(f"[*] Baseline loaded ({count} existing records skipped).")
+    print("[*] Watching for NEW events only...\n")
+
+    print(f"{'TIMESTAMP':<28} {'PID':<7} {'PPID':<7} {'COMM':<20} EXE")
+    print("-" * 90)
+
+    with open(LOG_FILE, 'a') as logf:
+        while True:
+            try:
+                time.sleep(2)
+                new_events = get_events(seen_serials)
+                for ev in new_events:
+                    ts   = ev.get('timestamp', '?')
+                    pid  = ev.get('pid',  '?')
+                    ppid = ev.get('ppid', '?')
+                    comm = ev.get('comm', '?')
+                    exe  = ev.get('exe',  '?')
+
+                    # Print to console
+                    print(f"{ts:<28} {pid:<7} {ppid:<7} {comm:<20} {exe}")
+
+                    # Write to log file
+                    logf.write(json.dumps({
+                        'timestamp': ts,
+                        'pid':  pid,
+                        'ppid': ppid,
+                        'comm': comm,
+                        'exe':  exe,
+                        'source': 'auditd'
+                    }) + '\n')
+                    logf.flush()
+
+            except KeyboardInterrupt:
+                print("\n[*] Monitor stopped.")
+                print(f"[*] Total unique events seen this session: "
+                      f"{len(seen_serials) - count}")
+                break
+
+
+if __name__ == '__main__':
+    main()
